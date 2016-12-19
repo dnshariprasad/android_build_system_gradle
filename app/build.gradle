@@ -26,20 +26,39 @@ android {
             debuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.releaseConfigs
+            applicationIdSuffix '.release'
+            versionNameSuffix '-RELEASE'
+
         }
         debug {
             minifyEnabled false
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
+            applicationIdSuffix '.debug'
+            versionNameSuffix '-DEBUG'
+            applicationVariants.all {variant ->
+                variant.outputs.each { output ->
+                    def newApkName
+                    if (output.zipAlign) {
+                        newApkName = "Gradle-v${defaultConfig.versionName}.${defaultConfig.versionCode}.apk"
+                    } else {
+                        newApkName = "Gradle-v${defaultConfig.versionName}.${defaultConfig.versionCode}-unaligned.apk"
+                    }
+                    output.outputFile = new File(output.outputFile.parent, newApkName)
+                }
+            }
         }
     }
     productFlavors {
         free {
-
+            applicationId "com.android_build_system_gradle.free"
+            buildConfigField "String", "SERVER_URL", '"https://dev.123.com"'
+            resValue "string", "app_name", "Gradle (Free)"
         }
         paid {
-
+            applicationId "com.android_build_system_gradle.paid"
+            buildConfigField "String", "SERVER_URL", '"https://beta.345.com"'
+            resValue "string", "app_name", "Gradle (paoid)"
         }
     }
 }
